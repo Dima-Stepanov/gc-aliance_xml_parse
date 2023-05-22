@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * ООО "Альянс розница"
@@ -43,23 +45,22 @@ public class MainXml {
     }
 
     public static void main(String[] args) {
-        /**
-         * Загружаем параметры
-         */
+
+
         ArgsSearch argsSearch = ArgsSearch.of(args);
         MainXml mainXml = new MainXml(argsSearch.get("p"));
-        /**
-         * Создаем объекты
-         */
+
+
         FileLoader fileLoader = new FileLoader();
         FileNameParser fileNameParser = new FileNameParser();
         DocumentLouder documentLouder = new DocumentLouder();
         DocumentParser documentParser = new DocumentParser();
         DocumentSaver documentSaver = new DocumentSaver();
 
-        /**
-         * Загружаем список файлов
-         */
+
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+
         List<File> xmlGsm = fileLoader.loadFileByDirectory(mainXml.inDir,
                 path -> path.getFileName().toString().toLowerCase().endsWith(XML)
                         && path.getFileName().toString().toLowerCase().startsWith(GSM_ARCHIVE));
@@ -67,29 +68,39 @@ public class MainXml {
                 path -> path.getFileName().toString().toLowerCase().endsWith(XML)
                         && path.getFileName().toString().toLowerCase().startsWith(PERS_ARCHIVE));
 
-        /**
-         * Перемещаем не нужные файлы
-         */
-        xmlPers.stream().forEach(file -> fileLoader.moveFileToDirectory(mainXml.outDir, file));
-        /**
-         * Редактируем и сохраняем файлы
-         */
+
+        xmlPers.forEach(file -> executor.submit(
+                () -> fileLoader.moveFileToDirectory(mainXml.outDir, file)));
+
+
         for (File file : xmlGsm) {
-            int azsNumber = fileNameParser.getNumberAzsByFileName(file.getPath());
+            executor.submit(() -> {
+                int azsNumber = fileNameParser.getNumberAzsByFileName(file.getPath());
+                try {
+                    Document document = documentLouder.getDocumentByFile(file);
+                    documentParser.parseDocumentByAttributesFuel(document, azsNumber);
+                    File newFile = fileLoader.addDirectoryToFile(mainXml.outDir, file);
+                    documentSaver.saveXMLtoFile(newFile, document);
+                } catch (Exception e) {
+                    LOG.error("Error application: {}", e);
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+
+        executor.shutdown();
+        while (!executor.isTerminated()) {
             try {
-                Document document = documentLouder.getDocumentByFile(file);
-                documentParser.parseDocumentByAttributesFuel(document, azsNumber);
-                File newFile = fileLoader.addDirectoryToFile(mainXml.outDir, file);
-                documentSaver.saveXMLtoFile(newFile, document);
+                Thread.sleep(100);
             } catch (Exception e) {
-                LOG.error("Error application: {}", e);
+                LOG.error("Executor shutdown error: {}", e);
                 throw new RuntimeException(e);
             }
         }
+        executor.shutdownNow();
 
-        /**
-         * Очищаем начальный каталог
-         */
+
         fileLoader.cleanDirectory(mainXml.inDir);
     }
 }
