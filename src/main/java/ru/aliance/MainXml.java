@@ -4,9 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -39,7 +37,8 @@ public class MainXml {
             properties.load(in);
             this.inDir = properties.getProperty("in");
             this.outDir = properties.getProperty("out");
-        } catch (Exception e) {
+        } catch (IOException e) {
+            LOG.error("Load file properties errors: {}", e);
             throw new RuntimeException(e);
         }
     }
