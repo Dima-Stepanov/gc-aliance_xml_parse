@@ -26,7 +26,7 @@ class ArgsSearchTest {
     }
 
     @Test
-    public void whenNotEnoughParametersThenExcaption() {
+    public void whenNotEnoughParametersThenException() {
         String[] args = new String[]{
                 "-p=file.properties",
                 "-p=file.properties"

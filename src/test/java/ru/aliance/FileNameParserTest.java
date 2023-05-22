@@ -49,4 +49,13 @@ class FileNameParserTest {
         int expected = 15;
         assertThat(actual).isEqualTo(expected);
     }
+
+    @Test
+    void whenGetFirstNumberByStringWhenReturn0() {
+        String testString = "PERSARCHIV_0 11_05_2023 8_01_02 - 11_05_2023 9_01_02.XML";
+        FileNameParser fileNameParser = new FileNameParser();
+        int actual = fileNameParser.getNumberAzsByFileName(testString);
+        int expected = 0;
+        assertThat(actual).isEqualTo(expected);
+    }
 }
