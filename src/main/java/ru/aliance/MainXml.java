@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
@@ -34,8 +35,7 @@ public class MainXml {
 
     private void initParam(String file) {
         Properties properties = new Properties();
-        try (InputStream in = MainXml.class
-                .getClassLoader().getResourceAsStream(file)) {
+        try (InputStream in = new FileInputStream(file)) {
             properties.load(in);
             this.inDir = properties.getProperty("in");
             this.outDir = properties.getProperty("out");
