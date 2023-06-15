@@ -38,7 +38,8 @@ JDK 17, Maven 3.9.1 <br>
          """java -jar xmlparse.jar -p=app.config""" <br>
 <hr>
 
-<h3>Контакты</h3>
-email: <b>haoos@inbox.ru</b> <br>
-telegram: <a href=https://t.me/Dima202020> <b>Dima202020</b> </a> <br>
-github.com: <a href=https://github.com/Dima-Stepanov><b>Dima-Stepanov</b></a>
+### Контакты
+
+> email: [haoos@inbox.ru](mailto:haoos@inbox.ru) <br>
+> tl: [Dima_software](https://t.me/Dima_software) <br>
+> github.com: [Dima-Stepanov](https://github.com/Dima-Stepanov)
